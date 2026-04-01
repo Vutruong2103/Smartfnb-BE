@@ -1,0 +1,293 @@
+{
+  "info": {
+    "name": "S-10 Order Realtime WebSocket Testing",
+    "description": "Complete test collection for SmartF&B Order Module with WebSocket realtime broadcast",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 1. AUTH LOGIN",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.environment.set('accessToken', jsonData.data.accessToken);",
+              "pm.environment.set('refreshToken', jsonData.data.refreshToken);",
+              "console.log('✅ Token saved to environment');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"owner@smartfnb.vn\",\n  \"password\": \"Password123!\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "🏢 2. SELECT BRANCH",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.environment.set('branchToken', jsonData.data.accessToken);",
+              "pm.environment.set('branchId', '550e8400-e29b-41d4-a716-446655440002');",
+              "console.log('✅ Branch Token saved');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"branchId\": \"550e8400-e29b-41d4-a716-446655440002\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/auth/select-branch",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "auth", "select-branch"]
+        }
+      }
+    },
+    {
+      "name": "📝 3. CREATE ORDER (Trigger OrderCreatedEvent)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.environment.set('orderId', jsonData.data.id);",
+              "pm.environment.set('orderNumber', jsonData.data.orderNumber);",
+              "console.log('✅ Order created: ' + jsonData.data.orderNumber);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{branchToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tableId\": \"550e8400-e29b-41d4-a716-446655440003\",\n  \"source\": \"IN_STORE\",\n  \"notes\": \"Không dá, ít đường\",\n  \"items\": [\n    {\n      \"itemId\": \"550e8400-e29b-41d4-a716-446655440100\",\n      \"itemName\": \"Cà phê Sữa Đá\",\n      \"quantity\": 2,\n      \"unitPrice\": 35000,\n      \"addons\": [\"Trân châu đen\"],\n      \"notes\": \"Ít dá\"\n    },\n    {\n      \"itemId\": \"550e8400-e29b-41d4-a716-446655440101\",\n      \"itemName\": \"Trà Sữa\",\n      \"quantity\": 1,\n      \"unitPrice\": 30000,\n      \"addons\": [\"Trân châu trắng\"],\n      \"notes\": null\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "orders"]
+        }
+      }
+    },
+    {
+      "name": "🔍 4. GET ORDER DETAIL",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{branchToken}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/orders/{{orderId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "orders", "{{orderId}}"]
+        }
+      }
+    },
+    {
+      "name": "📊 5. LIST ORDERS (with filters)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{branchToken}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/orders?status=PENDING&page=0&size=20",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "orders"],
+          "query": [
+            {
+              "key": "status",
+              "value": "PENDING",
+              "disabled": false
+            },
+            {
+              "key": "page",
+              "value": "0",
+              "disabled": false
+            },
+            {
+              "key": "size",
+              "value": "20",
+              "disabled": false
+            },
+            {
+              "key": "tableId",
+              "value": "550e8400-e29b-41d4-a716-446655440003",
+              "disabled": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "⚙️ 6. UPDATE STATUS → PROCESSING",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{branchToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"newStatus\": \"PROCESSING\",\n  \"reason\": \"Bếp đang pha chế\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/orders/{{orderId}}/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "orders", "{{orderId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "✅ 7. UPDATE STATUS → COMPLETED",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{branchToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"newStatus\": \"COMPLETED\",\n  \"reason\": \"Đã pha chế xong\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/orders/{{orderId}}/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "orders", "{{orderId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "❌ 8. CANCEL ORDER",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{branchToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Khách không muốn / Lỗi kỹ thuật\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/orders/{{orderId}}/cancel",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "orders", "{{orderId}}", "cancel"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "branchToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderNumber",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "branchId",
+      "value": "550e8400-e29b-41d4-a716-446655440002",
+      "type": "string"
+    }
+  ]
+}

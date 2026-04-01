@@ -20,13 +20,16 @@ com\smartfnb\rbac\infrastructure\persistence\PermissionJpaEntity.class
 com\smartfnb\order\web\controller\TableController.class
 com\smartfnb\plan\domain\valueobject\FeatureFlag.class
 com\smartfnb\branch\infrastructure\persistence\BranchUserJpaRepository.class
+com\smartfnb\order\infrastructure\websocket\OrderWebSocketEventHandler.class
 com\smartfnb\plan\application\dto\PlanResponse.class
 com\smartfnb\auth\application\command\SelectBranchCommand.class
 com\smartfnb\order\application\dto\UpdateTableRequest.class
 com\smartfnb\order\infrastructure\persistence\OrderJpaEntity.class
+com\smartfnb\order\application\query\OrderQueryHandler.class
 com\smartfnb\menu\domain\exception\DuplicateCategoryNameException.class
 com\smartfnb\auth\application\command\RefreshTokenCommandHandler.class
 com\smartfnb\rbac\infrastructure\persistence\PermissionRepository.class
+com\smartfnb\order\infrastructure\websocket\OrderWebSocketController$UpdateOrderStatusWebSocketRequest.class
 com\smartfnb\branch\infrastructure\persistence\BranchJpaEntity.class
 com\smartfnb\order\infrastructure\persistence\TableZoneJpaRepository.class
 com\smartfnb\order\application\query\TableQueryHandler.class
@@ -43,6 +46,7 @@ com\smartfnb\menu\application\dto\SetBranchItemPriceRequest.class
 com\smartfnb\menu\domain\service\InventoryCheckService$IngredientNameProvider.class
 com\smartfnb\auth\web\controller\AuthController.class
 com\smartfnb\order\web\controller\OrderController.class
+com\smartfnb\order\application\query\GetOrderListQuery.class
 com\smartfnb\rbac\infrastructure\persistence\RoleJpaRepository.class
 com\smartfnb\menu\infrastructure\persistence\MenuItemJpaEntity.class
 com\smartfnb\menu\web\controller\RecipeController.class
@@ -60,6 +64,7 @@ com\smartfnb\order\application\command\CancelOrderCommand.class
 com\smartfnb\order\domain\exception\TableNotFoundException.class
 com\smartfnb\rbac\infrastructure\persistence\RolePermissionJpaEntity$RolePermissionJpaEntityBuilder.class
 com\smartfnb\branch\application\dto\BranchRequest.class
+com\smartfnb\order\infrastructure\websocket\OrderWebSocketController.class
 com\smartfnb\plan\infrastructure\persistence\SubscriptionJpaEntity$SubscriptionJpaEntityBuilder.class
 com\smartfnb\shared\config\OpenApiConfig.class
 com\smartfnb\shared\TenantContext.class
@@ -108,11 +113,13 @@ com\smartfnb\order\application\dto\CreateTableRequest.class
 com\smartfnb\branch\infrastructure\persistence\BranchUserJpaEntity$BranchUserJpaEntityBuilder.class
 com\smartfnb\menu\infrastructure\persistence\AddonJpaEntity.class
 com\smartfnb\rbac\infrastructure\persistence\UserRoleJpaEntity$UserRoleJpaEntityBuilder.class
+com\smartfnb\order\infrastructure\websocket\OrderStatusBroadcaster.class
 com\smartfnb\order\infrastructure\persistence\OrderStatusLogJpaRepository.class
 com\smartfnb\auth\application\command\ForgotPasswordCommandHandler.class
 com\smartfnb\menu\infrastructure\persistence\CategoryJpaEntity.class
 com\smartfnb\menu\domain\exception\DuplicateAddonNameException.class
 com\smartfnb\menu\application\dto\CreateRecipeRequest.class
+com\smartfnb\order\application\query\GetOrderByIdQuery.class
 com\smartfnb\auth\infrastructure\persistence\UserJpaEntity$UserJpaEntityBuilder.class
 com\smartfnb\menu\application\dto\UpdateCategoryRequest.class
 com\smartfnb\auth\infrastructure\persistence\UserRepository.class
@@ -183,6 +190,7 @@ com\smartfnb\auth\infrastructure\persistence\TenantRepository.class
 com\smartfnb\menu\application\command\AddonCommandHandler.class
 com\smartfnb\order\domain\event\OrderStatusChangedEvent.class
 com\smartfnb\order\domain\exception\TableNotAvailableException.class
+com\smartfnb\order\application\query\OrderListResult.class
 com\smartfnb\branch\web\controller\BranchController.class
 com\smartfnb\branch\infrastructure\persistence\BranchJpaEntity$BranchJpaEntityBuilder.class
 com\smartfnb\shared\web\GlobalExceptionHandler.class

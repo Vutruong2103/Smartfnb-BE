@@ -65,7 +65,10 @@ public class CancelOrderCommandHandler {
         ));
         
         eventPublisher.publishEvent(new com.smartfnb.order.domain.event.OrderCancelledEvent(
-                savedOrder.getId(), Instant.now()
+                savedOrder.getId(),
+                savedOrder.getBranchId(),
+                savedOrder.getOrderNumber(),
+                Instant.now()
         ));
 
         return savedOrder;

@@ -83,7 +83,12 @@ public class PlaceOrderCommandHandler {
         Order savedOrder = orderRepository.save(order);
 
         // 5. Publish domain event
-        eventPublisher.publishEvent(new com.smartfnb.order.domain.event.OrderCreatedEvent(savedOrder.getId(), java.time.Instant.now()));
+        eventPublisher.publishEvent(new com.smartfnb.order.domain.event.OrderCreatedEvent(
+            savedOrder.getId(), 
+            savedOrder.getBranchId(),
+            savedOrder.getOrderNumber(),
+            java.time.Instant.now()
+        ));
 
         log.info("Đã tạo đơn hàng {} thành công", savedOrder.getOrderNumber());
         return savedOrder;

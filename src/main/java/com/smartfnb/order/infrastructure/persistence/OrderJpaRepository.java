@@ -14,4 +14,5 @@ public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, UUID>,
     Optional<OrderJpaEntity> findByIdAndTenantId(UUID id, UUID tenantId);
     Optional<OrderJpaEntity> findByIdAndTenantIdAndBranchId(UUID id, UUID tenantId, UUID branchId);
     Page<OrderJpaEntity> findByTenantIdAndBranchId(UUID tenantId, UUID branchId, Pageable pageable);
+    Page<OrderJpaEntity> findByTenantIdAndBranchIdAndStatus(UUID tenantId, UUID branchId, String status, Pageable pageable);
 }
