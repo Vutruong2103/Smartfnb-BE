@@ -4,6 +4,7 @@ import com.smartfnb.auth.application.dto.AuthResponse;
 import com.smartfnb.auth.infrastructure.jwt.JwtService;
 import com.smartfnb.auth.infrastructure.persistence.UserJpaEntity;
 import com.smartfnb.auth.infrastructure.persistence.UserRepository;
+import com.smartfnb.rbac.domain.service.PermissionService;
 import com.smartfnb.shared.exception.SmartFnbException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -33,6 +34,7 @@ public class RefreshTokenCommandHandler {
 
     private final JwtService      jwtService;
     private final UserRepository   userRepository;
+    private final PermissionService permissionService;
 
     /**
      * Làm mới access token từ refresh token hợp lệ.
@@ -73,12 +75,13 @@ public class RefreshTokenCommandHandler {
                     "Tài khoản đã bị vô hiệu hóa", 403);
         }
 
-        // 5. Tạo access token mới — role OWNER placeholder (S-04 sẽ load đúng role)
-        String role = "OWNER";
-        List<String> permissions = List.of();
+        // 5. Load role và permissions thật từ DB qua PermissionService
+        List<String> roleNames  = permissionService.getRoleNames(user.getId(), user.getTenantId());
+        String       primaryRole = roleNames.isEmpty() ? "STAFF" : roleNames.get(0);
+        List<String> permissions = permissionService.getPermissionCodes(user.getId(), user.getTenantId());
 
         String newAccessToken = jwtService.generateAccessToken(
-                userId, user.getTenantId(), role, permissions, null);
+                userId, user.getTenantId(), primaryRole, permissions, null);
 
         log.info("Refresh token thành công — userId: {}", userId);
 
@@ -88,7 +91,7 @@ public class RefreshTokenCommandHandler {
                 jwtService.getAccessExpirationSeconds(),
                 userId.toString(),
                 user.getTenantId().toString(),
-                role
+                primaryRole
         );
     }
 }

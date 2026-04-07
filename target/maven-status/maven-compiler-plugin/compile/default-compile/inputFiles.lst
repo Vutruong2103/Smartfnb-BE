@@ -362,6 +362,8 @@ E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\Re
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\ReceivePurchaseOrderCommandHandler.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\SendPurchaseOrderCommand.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\SendPurchaseOrderCommandHandler.java
+E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\UpdatePurchaseOrderCommand.java
+E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\UpdatePurchaseOrderCommandHandler.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\UpdateSupplierCommand.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\command\UpdateSupplierCommandHandler.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\supplier\application\query\GetPurchaseOrderDetailQueryHandler.java
