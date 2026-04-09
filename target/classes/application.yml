@@ -53,6 +53,13 @@ spring:
     virtual:
       enabled: true # Tomcat dùng Virtual Threads
 
+  ## ------ Multipart File Upload ------
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB       # Giới hạn mỗi file ảnh
+      max-request-size: 10MB   # Giới hạn toàn bộ request
+
 ## ------ Server ------
 server:
   port: ${SERVER_PORT:8080}
@@ -94,3 +101,10 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+## ------ File Storage (Local Filesystem) ------
+## Swap sang S3/MinIO: thêm implementation bean và đổi config bên dưới
+app:
+  storage:
+    upload-dir: ${UPLOAD_DIR:./uploads}         # Mount volume trong Docker
+    base-url: ${BASE_URL:http://localhost:8080}  # Base URL trả về trong response

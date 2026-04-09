@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.stream.Collectors;
 
@@ -83,6 +84,23 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.fail("ACCESS_DENIED",
                         "Bạn không có quyền thực hiện thao tác này"));
+    }
+
+    /**
+     * Xử lý lỗi file upload vượt quá kích thước giới hạn.
+     * Spring tự throw khi file > spring.servlet.multipart.max-file-size
+     *
+     * @param ex exception khi file quá lớn
+     * @return ResponseEntity 400 với mã lỗi FILE_TOO_LARGE
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceeded(
+            MaxUploadSizeExceededException ex) {
+        log.warn("File upload vượt kích thước cho phép: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.fail("FILE_TOO_LARGE",
+                        "Ảnh không được vượt quá 5MB"));
     }
 
     /**

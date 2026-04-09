@@ -73,6 +73,11 @@ services:
       SERVER_PORT: 8080
       # Logging
       SPRING_PROFILES_ACTIVE: docker
+      # File Storage
+      UPLOAD_DIR: /app/uploads   # Path trong container — mount tới named volume
+      BASE_URL: http://localhost:8080
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       - "8080:8080"          # API backend
     networks:
@@ -90,6 +95,8 @@ services:
 volumes:
   postgres_data:
     name: smartfnb-postgres-data
+  uploads_data:
+    name: smartfnb-uploads-data   # Ảnh món ăn persist qua container restart
 
 # ================================================================
 # Networks

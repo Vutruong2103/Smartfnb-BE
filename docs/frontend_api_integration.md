@@ -171,19 +171,88 @@ Tài liệu cung cấp chi tiết toàn bộ Endpoints hiện có trong dự án
 
 - `GET /items` - List phân trang (có query `keyword` tìm theo pg_trgm).
 - `GET /items/active` - Lấy ds món đang bán cho màn hình POS.
-- `POST /items` - Tạo món mới:
+- `GET /items/{id}/recipe` - Xem công thức của món ăn.
+
+#### `POST /items` — Tạo món mới (Upload ảnh từ máy)
+
+> **⚠️ BREAKING CHANGE**: API dùng `multipart/form-data` thay vì `application/json`.
+> FE phải gửi 2 parts: `data` (JSON) và `image` (file — tùy chọn).
+
+- **Content-Type:** `multipart/form-data`
+- **Part `data`** (bắt buộc, Content-Type: `application/json`):
   ```json
   {
-    "categoryId": "uuid", // Bắt buộc (hoặc null nếu chưa phân loại)
-    "name": "Cà phê Sữa Đá", // Bắt buộc
-    "basePrice": 35000, // Bắt buộc, >= 0
-    "unit": "Ly", // Tùy chọn (Ly, Cốc, Phần)
-    "imageUrl": "https://...", // Tùy chọn
-    "isSyncDelivery": false // Tùy chọn
+    "categoryId": "uuid-hoặc-null",
+    "name": "Cà phê Sữa Đá",
+    "basePrice": 35000,
+    "unit": "Ly",
+    "isSyncDelivery": false
   }
   ```
-- `PUT /items/{id}` & `DELETE /items/{id}`
-- `GET /items/{id}/recipe` - Xem công thức của món ăn.
+- **Part `image`** (tùy chọn): File ảnh JPEG/PNG/WebP, tối đa 5MB.
+- **Response `data`:** Object MenuItem với `imageUrl` là URL đầy đủ tới ảnh.
+
+**Ví dụ curl:**
+```bash
+curl -X POST http://localhost:8080/api/v1/menu/items \
+  -H "Authorization: Bearer <token>" \
+  -F 'data={"name":"Cà phê Sữa Đá","basePrice":35000,"unit":"Ly","isSyncDelivery":false};type=application/json' \
+  -F 'image=@/path/to/photo.jpg'
+```
+
+**Ví dụ JavaScript (FormData):**
+```javascript
+const formData = new FormData();
+formData.append('data', new Blob([JSON.stringify({
+  name: 'Cà phê Sữa Đá',
+  basePrice: 35000,
+  unit: 'Ly',
+  isSyncDelivery: false
+})], { type: 'application/json' }));
+
+if (imageFile) {
+  formData.append('image', imageFile); // File từ <input type="file">
+}
+
+const res = await fetch('/api/v1/menu/items', {
+  method: 'POST',
+  headers: { 'Authorization': `Bearer ${token}` },
+  body: formData
+  // KHÔNG set Content-Type — browser tự set boundary
+});
+```
+
+#### `PUT /items/{id}` — Cập nhật món (thay ảnh nếu có)
+
+- **Content-Type:** `multipart/form-data`
+- **Part `data`** (bắt buộc):
+  ```json
+  {
+    "categoryId": "uuid-hoặc-null",
+    "name": "Tên mới",
+    "basePrice": 38000,
+    "unit": "Ly",
+    "isActive": true,
+    "isSyncDelivery": false
+  }
+  ```
+- **Part `image`** (tùy chọn): Nếu không gửi → giữ nguyên ảnh cũ.
+
+#### `DELETE /items/{id}` — Xóa món (soft delete)
+
+#### Lỗi có thể nhận:
+| errorCode | Mô tả |
+|-----------|-------|
+| `INVALID_IMAGE` | Sai định dạng ảnh (chỉ JPEG/PNG/WebP) |
+| `FILE_TOO_LARGE` | Ảnh vượt quá 5MB |
+| `DUPLICATE_MENU_ITEM_NAME` | Tên món đã tồn tại trong tenant |
+
+#### Xem ảnh món ăn (Public — không cần JWT):
+```
+GET /api/v1/files/{filename}
+```
+`imageUrl` trong response là URL đầy đủ, FE dùng trực tiếp làm src của `<img>`.
+
 
 ### 4.3 Giá món riêng cho từng Chi Nhánh (Branch Items)
 

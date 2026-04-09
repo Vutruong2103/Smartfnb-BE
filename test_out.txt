@@ -1,0 +1,94 @@
+==========================================
+🚀 Bắt đầu chuỗi Test API SmartF&B (S-01 -> S-12)
+==========================================
+
+1. MỚI: Đăng ký Tenant (Chủ quán)
+   ✅ Đăng ký thành công.
+2. Đăng nhập
+   ✅ Đăng nhập thành công. Token lấy được.
+3. Kiểm tra Gói cước (Subscription)
+   ✅ API Subscription chạy tốt.
+4. Tạo Chi nhánh mới
+   ✅ Tạo chi nhánh thành công: b6830c53-9096-4182-b5b2-e64425cde285
+5. Chọn chi nhánh làm việc (Select Branch)
+   ✅ Chuyển scope sang chi nhánh thành công.
+6. Tạo Danh mục (Category)
+   ✅ Tạo Category thành công.
+7. Tạo Món bán (Item) — multipart/form-data (không kèm ảnh)
+   ✅ Tạo Món thành công. ID: 86e5fd79-aeff-4094-a64c-4b0167c620bf
+7b. Cập nhật Món (Item) — multipart PUT không kèm ảnh (giữ nguyên ảnh cũ)
+   ✅ Cập nhật Món thành công.
+8. Tạo Khu vực (Zone)
+   ✅ Tạo Zone thành công.
+9. Tạo Bàn (Table)
+   ✅ Tạo Bàn thành công.
+10. Tạo Đơn hàng (Order)
+   ✅ Tạo Order thành công. Mã: fc81cd74-18cf-4002-bf29-91e1f56d9d98
+11. Cập nhật Order sang COMPLETED
+   ✅ Đổi Order sang COMPLETED.
+12. Thanh toán bằng tiền mặt (Cash Payment)
+   ✅ Thanh toán thành công. PaymentId: 495ee7ef-01ac-4be1-ae1f-32009ea3c02c
+13. Truy vấn Hóa đơn (Invoices)
+   ✅ Truy vấn hóa đơn thành công. Có undefined hóa đơn trong chi nhánh.
+
+--- BẮT ĐẦU TEST S-13 & S-14 (INVENTORY) ---
+14. [Đúng] Nhập kho (Import Stock) nguyên liệu (+50)
+   ✅ Nhập kho thành công. BatchId: c833069e-b2be-4482-9080-509aed472b2f
+15. [Sai] Nhập kho với số lượng âm (Validation Error)
+   ✅ Server từ chối request sai thành công: undefined
+16. [Đúng] Điều chỉnh kho (Adjust Stock) -> Tồn kho = 45
+   ✅ Điều chỉnh kho thành công.
+17. [Đúng] Ghi hao hụt (Record Waste) (-5)
+   ✅ Ghi nhận hao hụt thành công.
+18. [Sai] Ghi hao hụt mà thiếu lý do (Validation Error)
+   ✅ Server từ chối request thiếu lý do thành công.
+19. [Đúng] Truy vấn Tồn kho (GET /inventory)
+   ✅ Truy vấn tồn kho thành công. Số mã hàng: 1
+   🔎 Số lượng tồn kho hiện tại đối với món test (sau khi set 45 -> trừ 5 hao hụt -> còn 40): 40
+   ✅ Cân bằng kho (Balance) tính toán chính xác!
+
+--- BẮT ĐẦU TEST S-15 (STAFF) ---
+20. Tạo Chức vụ (Position)
+   ✅ Tạo Chức vụ thành công. ID: 7fe2c482-e4ce-4675-96de-679957a3bb5e
+21. Lấy danh sách Chức vụ
+   ✅ Lấy danh sách Chức vụ thành công.
+22. Tạo Nhân sự (Staff)
+   ✅ Tạo Nhân sự thành công. ID: 24cc15a0-3790-41e2-a327-eddb11e32c22
+23. Cập nhật Nhân sự (Staff)
+   ✅ Cập nhật Nhân sự thành công.
+24. Tạo Vai trò (Role)
+   ✅ Tạo Role thành công. ID: f06c0292-6f39-432a-9280-c929f82aba62
+
+--- BẮT ĐẦU TEST S-16 (SHIFT) ---
+25. Tạo Ca làm việc mẫu (Shift Template)
+   ✅ Tạo Shift Template thành công. ID: ed8eb86f-041f-4ade-b998-35a1890ec098
+26. Đăng ký Ca làm việc (Register Shift)
+   ✅ Đăng ký Shift Schedule thành công. ID: 82ae8d7d-ae94-4e86-8937-4be4580ea359
+27. Lấy danh sách Ca của tôi (My Shifts)
+   ✅ Lấy danh sách ca làm việc cá nhân thành công.
+28. Check-IN Ca làm việc
+   ✅ Check-In thành công.
+29. Check-OUT Ca làm việc
+   ✅ Check-Out thành công.
+30. Mở Phiên bàn giao POS (Open PosSession)
+   ✅ Mở POS Session thành công. ID: f83507b1-8675-442e-acd8-f4ce9cd08b95
+31. Lấy POS Session đang Active
+   ✅ Lấy Active POS Session thành công.
+32. Đóng Phiên Bàn giao POS (Close PosSession)
+   ✅ Đóng POS Session thành công.
+
+--- BẮT ĐẦU TEST S-17 (SUPPLIER & PURCHASE ORDER) ---
+33. Tạo Nhà cung cấp (Supplier)
+   ✅ Tạo Supplier thành công. ID: 9b554d04-85bc-4b7f-8f37-b2d77e52c19a
+34. Tạo Đơn mua hàng (Purchase Order) - DRAFT
+   ✅ Tạo Purchase Order (DRAFT) thành công. ID: 90176c2f-dd06-4d5c-8967-b45e0eb017d1
+35. Gửi Đơn mua hàng cho NCC (DRAFT -> SENT)
+   ✅ Send Purchase Order thành công.
+36. Xác nhận nhận hàng (SENT -> RECEIVED)
+   ✅ Nhận Purchase Order thành công. (Đã trigger sinh StockBatch autmatically)
+37. Huỷ Đơn mua hàng (CANCELLED)
+   ✅ Huỷ Purchase Order thành công.
+
+==========================================
+🎉 TẤT CẢ MODULES (S-01 đến S-17) HOẠT ĐỘNG HOÀN HẢO!
+==========================================

@@ -11,9 +11,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,7 @@ import java.util.UUID;
 /**
  * REST Controller quản lý món ăn trong thực đơn.
  * Hỗ trợ tìm kiếm pg_trgm, soft delete và xem công thức chế biến.
+ * POST/PUT dùng multipart/form-data để upload ảnh từ máy người dùng.
  *
  * @author SmartF&B Team
  * @since 2026-03-28
@@ -97,36 +100,53 @@ public class MenuItemController {
     }
 
     /**
-     * Tạo món ăn mới trong thực đơn.
+     * Tạo món ăn mới trong thực đơn với ảnh upload từ máy.
      *
-     * @param request thông tin món ăn cần tạo
-     * @return thông tin món ăn vừa tạo
+     * <p>Request dùng multipart/form-data với 2 parts:</p>
+     * <ul>
+     *   <li>{@code data} — JSON thông tin món ăn (Content-Type: application/json)</li>
+     *   <li>{@code image} — File ảnh (JPEG/PNG/WebP, tối đa 5MB) — tùy chọn</li>
+     * </ul>
+     *
+     * @param request thông tin món ăn cần tạo (JSON part "data")
+     * @param image   file ảnh (part "image", tùy chọn)
+     * @return thông tin món ăn vừa tạo kèm imageUrl
      */
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasPermission(null, 'MENU_EDIT')")
-    @Operation(summary = "Tạo món ăn mới")
+    @Operation(summary = "Tạo món ăn mới (upload ảnh từ máy)")
     public ResponseEntity<ApiResponse<MenuItemResponse>> createMenuItem(
-            @Valid @RequestBody CreateMenuItemRequest request) {
+            @RequestPart("data") @Valid CreateMenuItemRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        MenuItemResponse result = menuItemCommandHandler.createMenuItem(request);
+        MenuItemResponse result = menuItemCommandHandler.createMenuItem(request, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(result));
     }
 
     /**
      * Cập nhật thông tin món ăn.
+     * Nếu gửi kèm ảnh mới thì thay thế ảnh cũ. Không gửi ảnh thì giữ nguyên.
+     *
+     * <p>Request dùng multipart/form-data với 2 parts:</p>
+     * <ul>
+     *   <li>{@code data} — JSON thông tin cập nhật (Content-Type: application/json)</li>
+     *   <li>{@code image} — File ảnh mới (JPEG/PNG/WebP, tối đa 5MB) — tùy chọn</li>
+     * </ul>
      *
      * @param id      ID món ăn cần cập nhật
-     * @param request thông tin cập nhật
+     * @param request thông tin cập nhật (JSON part "data")
+     * @param image   file ảnh mới (part "image", tùy chọn)
      * @return thông tin món ăn sau cập nhật
      */
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasPermission(null, 'MENU_EDIT')")
-    @Operation(summary = "Cập nhật món ăn")
+    @Operation(summary = "Cập nhật món ăn (thay ảnh nếu có)")
     public ResponseEntity<ApiResponse<MenuItemResponse>> updateMenuItem(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateMenuItemRequest request) {
+            @RequestPart("data") @Valid UpdateMenuItemRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        MenuItemResponse result = menuItemCommandHandler.updateMenuItem(id, request);
+        MenuItemResponse result = menuItemCommandHandler.updateMenuItem(id, request, image);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

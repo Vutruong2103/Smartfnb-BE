@@ -29,8 +29,8 @@ RUN addgroup -S smartfnb && adduser -S smartfnb -G smartfnb
 # Copy JAR từ stage build
 COPY --from=builder /app/target/*.jar app.jar
 
-# Đổi owner file sang non-root user
-RUN chown smartfnb:smartfnb app.jar
+# Tạo thư mục uploads và đặt owner trước khi switch sang non-root user
+RUN mkdir -p /app/uploads && chown -R smartfnb:smartfnb app.jar /app/uploads
 
 USER smartfnb
 

@@ -7,16 +7,19 @@ import com.smartfnb.menu.infrastructure.persistence.BranchItemJpaRepository;
 import com.smartfnb.menu.infrastructure.persistence.MenuItemJpaEntity;
 import com.smartfnb.menu.infrastructure.persistence.MenuItemJpaRepository;
 import com.smartfnb.shared.TenantContext;
+import com.smartfnb.shared.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
 /**
  * Command Handler xử lý CRUD cho MenuItem và BranchItem.
  * Hỗ trợ soft delete và thiết lập giá riêng theo chi nhánh.
+ * Ảnh được upload qua FileStorageService thay vì nhận URL từ client.
  *
  * @author SmartF&B Team
  * @since 2026-03-28
@@ -28,17 +31,19 @@ public class MenuItemCommandHandler {
 
     private final MenuItemJpaRepository menuItemJpaRepository;
     private final BranchItemJpaRepository branchItemJpaRepository;
+    private final FileStorageService fileStorageService;
 
     /**
      * Tạo món ăn mới trong thực đơn.
-     * Validate: tên chưa tồn tại trong tenant.
+     * Nếu có file ảnh, upload và lưu URL vào entity.
      *
      * @param request thông tin món ăn cần tạo
+     * @param image   file ảnh (tùy chọn — null nếu không upload)
      * @return DTO response chứa thông tin món ăn vừa tạo
      * @throws DuplicateMenuItemNameException nếu tên đã tồn tại
      */
     @Transactional
-    public MenuItemResponse createMenuItem(CreateMenuItemRequest request) {
+    public MenuItemResponse createMenuItem(CreateMenuItemRequest request, MultipartFile image) {
         UUID tenantId = TenantContext.requireCurrentTenantId();
 
         log.info("Tạo món ăn mới '{}' cho tenant {}", request.name(), tenantId);
@@ -46,6 +51,13 @@ public class MenuItemCommandHandler {
         // Validate unique tên trong tenant
         if (menuItemJpaRepository.existsByTenantIdAndNameAndDeletedAtIsNull(tenantId, request.name())) {
             throw new DuplicateMenuItemNameException(request.name());
+        }
+
+        // Upload ảnh nếu có
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = fileStorageService.store(image);
+            log.info("Đã upload ảnh cho món '{}': {}", request.name(), imageUrl);
         }
 
         MenuItemJpaEntity entity = new MenuItemJpaEntity();
@@ -56,7 +68,7 @@ public class MenuItemCommandHandler {
         entity.setType("SELLABLE");
         entity.setBasePrice(request.basePrice());
         entity.setUnit(request.unit());
-        entity.setImageUrl(request.imageUrl());
+        entity.setImageUrl(imageUrl);
         entity.setIsActive(true);
         entity.setIsSyncDelivery(Boolean.TRUE.equals(request.isSyncDelivery()));
 
@@ -68,15 +80,18 @@ public class MenuItemCommandHandler {
 
     /**
      * Cập nhật thông tin món ăn.
+     * Nếu có file ảnh mới: xóa ảnh cũ và upload ảnh mới.
+     * Nếu không có ảnh: giữ nguyên ảnh cũ.
      *
      * @param itemId  ID món ăn cần cập nhật
      * @param request thông tin cập nhật
+     * @param image   file ảnh mới (tùy chọn — null để giữ nguyên ảnh cũ)
      * @return DTO response sau cập nhật
      * @throws MenuItemNotFoundException      nếu món ăn không tồn tại hoặc đã xóa
      * @throws DuplicateMenuItemNameException nếu tên mới đã tồn tại
      */
     @Transactional
-    public MenuItemResponse updateMenuItem(UUID itemId, UpdateMenuItemRequest request) {
+    public MenuItemResponse updateMenuItem(UUID itemId, UpdateMenuItemRequest request, MultipartFile image) {
         UUID tenantId = TenantContext.requireCurrentTenantId();
 
         log.info("Cập nhật món ăn {} cho tenant {}", itemId, tenantId);
@@ -93,11 +108,22 @@ public class MenuItemCommandHandler {
             throw new DuplicateMenuItemNameException(request.name());
         }
 
+        // Xử lý ảnh: nếu có ảnh mới thì upload, xóa ảnh cũ
+        if (image != null && !image.isEmpty()) {
+            String oldImageUrl = entity.getImageUrl();
+            String newImageUrl = fileStorageService.store(image);
+            entity.setImageUrl(newImageUrl);
+            log.info("Cập nhật ảnh món {}: {} → {}", itemId, oldImageUrl, newImageUrl);
+
+            // Xóa ảnh cũ sau khi đã đổi (không throw nếu xóa thất bại)
+            fileStorageService.delete(oldImageUrl);
+        }
+        // Nếu không có ảnh mới → giữ nguyên entity.imageUrl
+
         entity.setCategoryId(request.categoryId());
         entity.setName(request.name());
         entity.setBasePrice(request.basePrice());
         entity.setUnit(request.unit());
-        entity.setImageUrl(request.imageUrl());
         if (request.isActive() != null) {
             entity.setIsActive(request.isActive());
         }
@@ -114,6 +140,7 @@ public class MenuItemCommandHandler {
     /**
      * Soft delete món ăn.
      * Đặt deleted_at và is_active = false để giữ lại dữ liệu lịch sử.
+     * Không xóa ảnh — ảnh có thể vẫn được dùng ở lịch sử đơn hàng.
      *
      * @param itemId ID món ăn cần xóa
      * @throws MenuItemNotFoundException nếu món ăn không tồn tại

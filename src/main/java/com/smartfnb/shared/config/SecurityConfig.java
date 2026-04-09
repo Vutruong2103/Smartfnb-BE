@@ -79,6 +79,9 @@ public class SecurityConfig {
                 // Actuator health — public
                 .requestMatchers("/actuator/health").permitAll()
 
+                // File uploads (ảnh món ăn) — public, không cần JWT để hiển thị trong POS
+                .requestMatchers(HttpMethod.GET, "/api/v1/files/**").permitAll()
+
                 // Mọi request còn lại yêu cầu xác thực JWT
                 .anyRequest().authenticated()
             )

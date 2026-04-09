@@ -7,6 +7,8 @@ import java.util.UUID;
 
 /**
  * DTO request cập nhật món ăn.
+ * imageUrl không nhận từ đây — nhận qua @RequestPart("image") MultipartFile.
+ * Nếu không upload ảnh mới thì giữ nguyên ảnh cũ.
  *
  * @author SmartF&B Team
  * @since 2026-03-28
@@ -29,9 +31,6 @@ public record UpdateMenuItemRequest(
         /** Đơn vị tính mới */
         @Size(max = 30, message = "Đơn vị tính tối đa 30 ký tự")
         String unit,
-
-        /** URL ảnh mới */
-        String imageUrl,
 
         /** Trạng thái kích hoạt */
         Boolean isActive,

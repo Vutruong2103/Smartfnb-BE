@@ -8,6 +8,7 @@ import java.util.UUID;
 /**
  * DTO request tạo món ăn mới trong thực đơn.
  * tenantId không nhận từ client — lấy từ JWT qua TenantContext.
+ * imageUrl không nhận từ đây — nhận qua @RequestPart("image") MultipartFile.
  *
  * @author SmartF&B Team
  * @since 2026-03-28
@@ -30,9 +31,6 @@ public record CreateMenuItemRequest(
         /** Đơn vị tính */
         @Size(max = 30, message = "Đơn vị tính tối đa 30 ký tự")
         String unit,
-
-        /** URL ảnh minh họa */
-        String imageUrl,
 
         /** Đồng bộ lên app giao hàng — mặc định false */
         Boolean isSyncDelivery

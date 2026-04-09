@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const BASE_URL = 'http://localhost:8080/api/v1';
 
@@ -20,6 +21,40 @@ async function request(endpoint, method = 'GET', body = null, token = null) {
         data = await res.text();
     }
     
+    return { status: res.status, data };
+}
+
+/**
+ * Gửi request multipart/form-data với JSON part "data" và file part "image" (tùy chọn).
+ * Dùng cho POST /menu/items và PUT /menu/items/{id} sau khi chuyển sang file upload.
+ * @param {string} endpoint
+ * @param {string} method POST hoặc PUT
+ * @param {object} dataJson object sẽ serialize thành JSON trong part "data"
+ * @param {string|null} imageFilePath đường dẫn file ảnh cục bộ, null = không kèm ảnh
+ * @param {string|null} token Bearer token
+ */
+async function requestMultipart(endpoint, method, dataJson, imageFilePath = null, token = null) {
+    // FormData + Blob available natively từ Node.js 18+
+    const form = new FormData();
+    form.append('data', new Blob([JSON.stringify(dataJson)], { type: 'application/json' }));
+
+    if (imageFilePath) {
+        const fileBuffer = fs.readFileSync(imageFilePath);
+        const ext = path.extname(imageFilePath).slice(1).toLowerCase();
+        const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
+        const mime = mimeMap[ext] || 'image/jpeg';
+        form.append('image', new Blob([fileBuffer], { type: mime }), path.basename(imageFilePath));
+    }
+
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${BASE_URL}${endpoint}`, { method, headers, body: form });
+    if (res.status === 204) return { status: res.status, data: {} };
+
+    let data;
+    try { data = await res.json(); }
+    catch { data = await res.text(); }
     return { status: res.status, data };
 }
 
@@ -92,16 +127,28 @@ async function runTests() {
         categoryId = res.data.data.id;
         console.log("   ✅ Tạo Category thành công.");
 
-        console.log("7. Tạo Món bán (Item)");
-        res = await request('/menu/items', 'POST', {
+        console.log("7. Tạo Món bán (Item) — multipart/form-data (không kèm ảnh)");
+        res = await requestMultipart('/menu/items', 'POST', {
             categoryId: categoryId,
             name: "Cà phê Auto",
             basePrice: 20000,
             unit: "Ly"
-        }, currentToken);
+        }, null, currentToken);
         if (res.status !== 200 && res.status !== 201) throw new Error("Create item failed: " + JSON.stringify(res.data));
         itemId = res.data.data.id;
-        console.log("   ✅ Tạo Món thành công.");
+        console.log("   ✅ Tạo Món thành công. ID: " + itemId);
+
+        console.log("7b. Cập nhật Món (Item) — multipart PUT không kèm ảnh (giữ nguyên ảnh cũ)");
+        res = await requestMultipart(`/menu/items/${itemId}`, 'PUT', {
+            categoryId: categoryId,
+            name: "Cà phê Auto (Updated)",
+            basePrice: 25000,
+            unit: "Ly",
+            isActive: true,
+            isSyncDelivery: false
+        }, null, currentToken);
+        if (res.status !== 200) throw new Error("Update item failed: " + JSON.stringify(res.data));
+        console.log("   ✅ Cập nhật Món thành công.");
 
         // --- S-08: TABLES ---
         console.log("8. Tạo Khu vực (Zone)");

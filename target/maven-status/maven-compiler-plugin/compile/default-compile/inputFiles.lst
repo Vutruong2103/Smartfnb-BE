@@ -251,10 +251,14 @@ E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\rbac\security\CustomPermissionE
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\config\AuditConfig.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\config\OpenApiConfig.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\config\SecurityConfig.java
+E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\config\WebMvcConfig.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\config\WebSocketConfig.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\domain\BaseAggregateRoot.java
+E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\exception\InvalidImageException.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\exception\SmartFnbException.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\SecurityUtils.java
+E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\storage\FileStorageService.java
+E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\storage\LocalFileStorageService.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\TenantContext.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\web\ApiResponse.java
 E:\Smart_web\SmartF&B\src\main\java\com\smartfnb\shared\web\GlobalExceptionHandler.java
